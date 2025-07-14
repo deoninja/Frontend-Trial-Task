@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin-to-Win Game Customizer</title>
+    <style>
+        :root {
+            /* Premium dark theme with hot pink accents */
+            --primary: #E91E63;
+            --primary-hover: #d01257;
+            --accent: #FF1493;
+            --background: #0a0a0a;
+            --surface: #1a1a1a;
+            --surface-light: #2a2a2a;
+            --border: #333;
+            --text: #ffffff;
+            --text-muted: #999;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            height: 100vh;
+            line-height: 1.6;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--primary);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(233, 30, 99, 0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span:first-child {
+            font-size: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .save-button, .preview-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .preview-button {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .save-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(233, 30, 99, 0.4);
+        }
+
+        .preview-button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                padding: 2rem;
+            }
+        }
+
+        /* Config Panel */
+        .config-panel {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-right: 1rem;
+            height: calc(100vh - 120px);
+            max-height: calc(100vh - 120px);
+            position: sticky;
+            top: 100px;
+            width: 50%;
+        }
+
+        .config-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .config-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .config-header p {
+            opacity: 0.9;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--surface-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab:hover {
+            color: var(--text);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        /* Config Content */
+        .config-content {
+            padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .config-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .config-content::-webkit-scrollbar-track {
+            background: var(--surface-light);
+        }
+
+        .config-content::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+        }
+
+        /* Character Counter */
+        .char-counter {
+            position: absolute;
+            right: 10px;
+            bottom: -20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .char-counter.warning {
+            color: var(--warning);
+        }
+
+        .char-counter.error {
+            color: var(--error);
+        }
+
+        /* Emoji Input */
+        .emoji-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .emoji-input-group .form-input {
+            flex: 1;
+        }
+
+        .emoji-picker-btn {
+            padding: 0.75rem 1rem;
+            background: var(--surface-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .emoji-picker-btn:hover {
+            border-color: var(--primary);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Color Picker */
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .color-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+
+        /* Prize Configuration */
+        .prize-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .prize-item {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid var(--border);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .prize-item:hover, .prize-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(233, 30, 99, 0.2);
+        }
+
+        .prize-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 25px;
+            height: 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            z-index: 10;
+        }
+
+        .prize-delete {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .prize-delete:hover {
+            color: var(--error);
+        }
+
+        .prize-fields {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .prize-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prize-field label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .prize-field input {
+            padding: 0.75rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .chance-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chance-input-wrapper input {
+            flex: 1;
+        }
+
+        .lock-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .lock-btn.locked {
+            color: var(--primary);
+        }
+
+        /* Add Prize Button */
+        .add-prize-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: transparent;
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .add-prize-btn:hover:not(:disabled) {
+            background: rgba(233, 30, 99, 0.05);
+            border-style: solid;
+        }
+
+        .add-prize-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        /* Preview Panel - Fixed per PM instructions */
+        .preview-panel {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 2rem 0.5rem 2rem;
+            flex-direction: column;
+            flex: 1;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 120px);
+            max-height: calc(100vh - 120px);
+            width: 50%;
+        }
+
+        .preview-header {
+            background: var(--surface-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: -2rem -2rem 1rem -2rem;
+            width: calc(100% + 4rem);
+        }
+
+        .preview-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .device-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .device-btn {
+            padding: 0.5rem 1rem;
+            background: var(--background);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .preview-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--background);
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            min-height: 0;
+            width: 100vw;
+            margin-top: -1em;
+            margin-bottom: -1em;
+        }
+
+        .preview-content.desktop-mode {
+            padding: 0;
+        }
+
+        .phone-frame {
+            position: relative;
+            width: 375px;
+            height: 690px;
+            background: white;
+            border-radius: 35px;
+            overflow: hidden;
+            border: 8px solid var(--surface-light);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            transform-origin: center center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin: 20px;
+        }
+
+        /* Auto-scale phone to fit viewport */
+        .phone-frame:not(.desktop-frame) {
+            transform-origin: center center;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-height: 800px) {
+            .phone-frame:not(.desktop-frame):not(.tablet-size) {
+                transform: scale(0.85);
+            }
+        }
+
+        @media (max-height: 700px) {
+            .phone-frame:not(.desktop-frame):not(.tablet-size) {
+                transform: scale(0.75);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .phone-frame:not(.desktop-frame):not(.tablet-size) {
+                transform: scale(0.65);
+            }
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            /* Header mobile adjustments */
+            .header {
+                padding: 0.5rem;
+                position: relative;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+            }
+            
+            .logo {
+                font-size: 1.1rem;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .logo span:first-child {
+                font-size: 1.3rem;
+            }
+            
+            .header-actions {
+                gap: 0.5rem;
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .save-button, .preview-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+                flex: 1;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+            
+            /* Container mobile layout */
+            .container {
+                flex-direction: column;
+                padding: 0.5rem;
+                gap: 1rem;
+                max-width: 100%;
+            }
+            
+            /* Config panel mobile */
+            .config-panel {
+                margin-right: 0;
+                border-radius: 12px;
+                width: 100%;
+                height: auto;
+                max-height: none;
+                position: relative;
+                top: auto;
+            }
+            
+            .config-header {
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .config-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .config-header p {
+                font-size: 0.9rem;
+            }
+            
+            /* Tabs mobile */
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                padding: 0 0.5rem;
+            }
+            
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .tab {
+                padding: 0.75rem 1.2rem;
+                font-size: 0.85rem;
+                white-space: nowrap;
+                min-width: 80px;
+                border-radius: 8px 8px 0 0;
+            }
+            
+            /* Config content mobile */
+            .config-content {
+                padding: 1rem;
+                max-height: none;
+                height: auto;
+            }
+            
+            /* Form elements mobile */
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+            
+            .form-label {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+            }
+            
+            .form-input, .form-select {
+                padding: 0.875rem;
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 48px; /* Larger touch target */
+                border-radius: 8px;
+            }
+            
+            .form-input:focus, .form-select:focus {
+                transform: none;
+                border-width: 2px;
+            }
+            
+            /* Button mobile sizing */
+            .emoji-picker-btn, .color-preview {
+                min-width: 48px;
+                min-height: 48px;
+                border-radius: 8px;
+            }
+            
+            .add-prize-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+                width: 100%;
+                border-radius: 12px;
+                min-height: 48px;
+            }
+            
+            /* Toggle switch mobile */
+            .toggle-switch {
+                min-width: 48px;
+                min-height: 28px;
+            }
+            
+            /* Preview panel mobile */
+            .preview-panel {
+                width: 100%;
+                margin-top: 1rem;
+                order: -1;
+                height: auto;
+                max-height: none;
+                position: relative;
+                top: auto;
+                border-radius: 12px;
+            }
+            
+            .preview-header {
+                padding: 0.75rem 1rem;
+                margin: -2rem -2rem 1rem -2rem;
+                width: calc(100% + 4rem);
+            }
+            
+            .preview-title {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            
+            .preview-content {
+                padding: 1rem;
+                min-height: 300px;
+            }
+            
+            .iphone-frame {
+                width: 250px;
+                height: 450px;
+                border-radius: 25px;
+                padding: 6px;
+                margin: 10px auto;
+            }
+            
+            .preview-iframe {
+                border-radius: 20px;
+            }
+            
+            /* Prize items mobile */
+            .prize-item {
+                padding: 1rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+            
+            .prize-fields {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .prize-field input {
+                padding: 0.875rem;
+                font-size: 16px;
+                min-height: 48px;
+                border-radius: 8px;
+            }
+            
+            /* Color picker mobile */
+            .color-input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            
+            .color-preview {
+                width: 100%;
+                height: 48px;
+                border-radius: 8px;
+            }
+            
+            /* Toast mobile */
+            .toast-container {
+                padding: 1rem;
+                right: 0;
+                left: 0;
+                top: 1rem;
+            }
+            
+            .toast {
+                margin: 0 0 0.5rem 0;
+                border-radius: 12px;
+                min-width: auto;
+                width: 100%;
+            }
+            
+            /* Confirm dialog mobile */
+            .confirm-dialog {
+                margin: 1rem;
+                padding: 1.5rem;
+                border-radius: 15px;
+                width: calc(100% - 2rem);
+            }
+            
+            .confirm-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .confirm-btn {
+                width: 100%;
+                padding: 1rem;
+                min-height: 48px;
+                border-radius: 8px;
+                font-size: 1rem;
+            }
+            
+            /* Section titles mobile */
+            .section-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            /* Character counters mobile */
+            .char-counter {
+                position: static;
+                display: block;
+                text-align: right;
+                margin-top: 0.25rem;
+                font-size: 0.8rem;
+            }
+            
+            .input-wrapper {
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Extra small screens */
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .header {
+                padding: 0.5rem;
+            }
+            
+            .logo span:last-child {
+                display: none; /* Hide text on very small screens */
+            }
+            
+            .save-button, .preview-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            .config-content {
+                padding: 0.75rem;
+                max-height: 50vh;
+            }
+            
+            .iphone-frame {
+                width: 240px;
+                height: 430px;
+                border-radius: 30px;
+                padding: 6px;
+            }
+            
+            .tab {
+                padding: 0.6rem 0.75rem;
+                font-size: 0.85rem;
+                min-width: 70px;
+            }
+        }
+        
+        @media (max-width: 1023px) and (min-width: 769px) {
+            /* Tablet styles */
+            .container {
+                flex-direction: column;
+                height: auto;
+                padding: 1.5rem;
+            }
+            
+            .config-panel {
+                max-height: none;
+                margin-right: 0;
+            }
+            
+            .preview-panel {
+                width: 100%;
+                margin-top: 2rem;
+            }
+            
+            .iphone-frame {
+                width: 320px;
+                height: 570px;
+            }
+        }
+        
+        /* Landscape mobile adjustments */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                flex-direction: row;
+                height: 100vh;
+                overflow: hidden;
+            }
+            
+            .config-panel {
+                flex: 1;
+                max-width: 50%;
+            }
+            
+            .config-content {
+                max-height: calc(100vh - 200px);
+            }
+            
+            .preview-panel {
+                flex: 1;
+                margin-top: 0;
+                margin-left: 1rem;
+                order: 0;
+            }
+            
+            .iphone-frame {
+                width: 200px;
+                height: 360px;
+                border-radius: 25px;
+                padding: 5px;
+            }
+        }
+
+        /* Desktop frame - no scaling */
+        .preview-content.desktop-mode .phone-frame {
+            transform: none !important;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            display: block;
+        }
+
+        /* Chance Balance Indicator */
+        .chance-total {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--surface-light);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .chance-total-label {
+            font-weight: 600;
+        }
+
+        .chance-total-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .chance-total-value.valid {
+            color: var(--success);
+        }
+
+        .chance-total-value.invalid {
+            color: var(--error);
+        }
+
+        .chance-warning {
+            flex: 1;
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--warning);
+        }
+
+        /* Auto-color segments toggle group */
+        .auto-color-group {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .auto-color-info {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Individual segment colors */
+        .segment-colors-list {
+            margin-top: 1rem;
+            display: none;
+            gap: 0.75rem;
+            flex-direction: column;
+        }
+
+        .segment-colors-list.show {
+            display: flex;
+        }
+
+        .segment-color-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem;
+            background: var(--background);
+            border-radius: 8px;
+        }
+
+        .segment-color-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .segment-color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+        }
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .toast.error {
+            border-color: var(--error);
+        }
+
+        .toast.warning {
+            border-color: var(--warning);
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+
+        .toast-message {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: var(--text);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-in;
+        }
+
+        /* Custom Confirm Dialog */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .confirm-dialog {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .confirm-overlay.show .confirm-dialog {
+            transform: scale(1);
+        }
+
+        .confirm-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-icon {
+            font-size: 2rem;
+            color: var(--warning);
+        }
+
+        .confirm-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .confirm-message {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .confirm-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn-cancel {
+            background: var(--surface-light);
+            color: var(--text);
+        }
+
+        .confirm-btn-cancel:hover {
+            background: var(--border);
+        }
+
+        .confirm-btn-confirm {
+            background: var(--primary);
+            color: white;
+        }
+
+        .confirm-btn-confirm:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+        }
+.iphone-frame {
+  width: 375px;
+  height: 667px;
+  background: black;
+  border-radius: 50px;
+  overflow: hidden;
+  padding: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  margin: 0 auto;
+}
+.preview-iframe {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border: none;
+  border-radius: 30px;
+  overflow: hidden; /* This line removes scrollbars */
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch-friendly focus states */
+    .form-input:focus,
+    .form-select:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+        border-color: var(--primary);
+    }
+    
+    /* Larger touch targets */
+    .tab,
+    .save-button,
+    .preview-button,
+    .add-prize-btn,
+    .emoji-picker-btn,
+    .color-preview {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .save-button:hover,
+    .preview-button:hover,
+    .tab:hover,
+    .form-input:hover,
+    .form-select:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Better touch feedback */
+    .save-button:active,
+    .preview-button:active,
+    .tab:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+}
+
+/* Prevent zoom on input focus for iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .form-input,
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom Confirm Dialog -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-header">
+                <span class="confirm-icon">⚠️</span>
+                <h3 class="confirm-title" id="confirmTitle">Delete this prize?</h3>
+            </div>
+            <p class="confirm-message" id="confirmMessage">This action cannot be undone.</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-btn-cancel" id="confirmCancel">Cancel</button>
+                <button class="confirm-btn confirm-btn-confirm" id="confirmOK">Delete</button>
+            </div>
+        </div>
+    </div>
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <span>🎡</span>
+                <span>Spin-to-Win Customizer</span>
+            </a>
+            <div class="header-actions">
+                <button class="preview-button" onclick="togglePreviewMode()">
+                    👁️ Preview Mode
+                </button>
+                <button class="save-button" onclick="saveConfig()">
+                    💾 Save Config
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="config-panel">
+            <div class="config-header">
+                <h2>Game Configuration</h2>
+                <p>Customize your spin wheel game</p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('basic')">Basic</button>
+                <button class="tab" onclick="switchTab('prizes')">Prizes</button>
+                <button class="tab" onclick="switchTab('advanced')">Advanced</button>
+                <button class="tab" onclick="switchTab('style')">Style</button>
+            </div>
+
+            <div class="config-content">
+                <!-- Basic Tab -->
+                <div id="basic-tab" class="tab-content active">
+                    <div class="form-section">
+                        <h3 class="section-title">Basic Settings</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Game Title</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-input" id="gameTitle" 
+                                       value="Spin & Win a Surprise 😈" 
+                                       maxlength="50"
+                                       oninput="updateCharCount(this, 50); updatePreview()">
+                                <span class="char-counter" id="gameTitle-counter">0 / 50</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Subtitle</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-input" id="subtitle" 
+                                       value="Enter your email and spin to unlock a naughty reward."
+                                       maxlength="100"
+                                       oninput="updateCharCount(this, 100); updatePreview()">
+                                <span class="char-counter" id="subtitle-counter">0 / 100</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">CTA Button Text</label>
+                            <div class="input-wrapper">
+                                <input type="text" class="form-input" id="ctaText" 
+                                       value="Spin Now" 
+                                       maxlength="20"
+                                       oninput="updateCharCount(this, 20); updatePreview()">
+                                <span class="char-counter" id="ctaText-counter">0 / 20</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Button Emoji (Optional)</label>
+                            <div class="emoji-input-group">
+                                <input type="text" class="form-input" id="buttonEmoji" 
+                                       value="🎉" 
+                                       maxlength="2"
+                                       oninput="updatePreview()">
+                                <button class="emoji-picker-btn" onclick="openEmojiPicker()">😀</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Email Required</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="emailRequired" checked onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <small style="color: var(--text-muted); font-weight: normal;">Require email before spinning</small>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Number of Segments</label>
+                            <select class="form-select" id="segments" onchange="updateSegmentColors(); updatePreview()">
+                                <option value="8" selected>8 Segments</option>
+                                <option value="10">10 Segments</option>
+                                <option value="12">12 Segments</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prizes Tab -->
+                <div id="prizes-tab" class="tab-content">
+                    <div class="form-section">
+                        <h3 class="section-title">Prize Configuration</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem;">Configure up to 12 prize segments (max 17 characters each)</p>
+                        
+                        <!-- Chance Balance Indicator -->
+                        <div class="chance-total" style="display: none;">
+                            <span class="chance-total-label">Total Chance:</span>
+                            <span class="chance-total-value" id="chanceTotal">100%</span>
+                            <span class="chance-warning" id="chanceWarning"></span>
+                        </div>
+                        
+                        <div class="prize-list" id="prizeList">
+                            <!-- Prize items will be dynamically added here -->
+                        </div>
+                        
+                        <button class="add-prize-btn" id="addPrizeBtn">
+                            + Add Prize
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Tab -->
+                <div id="advanced-tab" class="tab-content">
+                    <div class="form-section">
+                        <h3 class="section-title">Advanced Settings</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="form-select" id="language" onchange="updatePreview()">
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Enable Sound Effects</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="soundEffects" checked onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <small style="color: var(--text-muted); font-weight: normal;">Play sound on win</small>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Enable Confetti</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="confettiEnabled" checked onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <small style="color: var(--text-muted); font-weight: normal;">Show confetti animation on win</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Countdown Timer</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Enable Countdown Timer</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="countdownEnabled" onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Timer Duration (Hours)</label>
+                            <select class="form-select" id="timerDuration" onchange="updatePreview()">
+                                <option value="24">24 Hours</option>
+                                <option value="48">48 Hours</option>
+                                <option value="72">72 Hours</option>
+                                <option value="168">1 Week</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Security & Anti-Spam</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Enable Rate Limiting</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="rateLimiting" checked onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Max Plays Per Email (24h)</label>
+                            <input type="number" class="form-input" id="maxPlays" value="3" min="1" max="10" onchange="updatePreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Mobile Optimization</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span>Auto-Focus Email Field</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="autoFocus" checked onchange="updatePreview()">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Style Tab -->
+                <div id="style-tab" class="tab-content">
+                    <div class="form-section">
+                        <h3 class="section-title">Visual Settings</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Background Color</label>
+                            <div class="color-input-wrapper">
+                                <div class="color-preview" id="bgColorPreview" 
+                                     style="background: #0a0a0a" 
+                                     onclick="document.getElementById('bgColor').click()"></div>
+                                <input type="color" class="form-input" id="bgColor" 
+                                       value="#0a0a0a" 
+                                       oninput="updateColorPreview('bgColor', 'bgColorPreview'); updatePreview()"
+                                       style="opacity: 0; width: 0; height: 0;">
+                                <input type="text" class="form-input" value="#0a0a0a" 
+                                       oninput="updateColorFromText(this, 'bgColor', 'bgColorPreview')">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Wheel Base Color</label>
+                            <div class="color-input-wrapper">
+                                <div class="color-preview" id="primaryColorPreview" 
+                                     style="background: #ff1493" 
+                                     onclick="document.getElementById('primaryColor').click()"></div>
+                                <input type="color" class="form-input" id="primaryColor" 
+                                       value="#ff1493" 
+                                       oninput="updateColorPreview('primaryColor', 'primaryColorPreview'); updateSegmentColors(); updatePreview()"
+                                       style="opacity: 0; width: 0; height: 0;">
+                                <input type="text" class="form-input" value="#ff1493" 
+                                       oninput="updateColorFromText(this, 'primaryColor', 'primaryColorPreview')">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="auto-color-group">
+                                <label class="form-label">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span>✨ Auto-color segments</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="autoColorSegments" checked onchange="toggleAutoColor(); updatePreview()">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </label>
+                                <div class="auto-color-info">
+                                    When enabled, creates alternating shades from the base color
+                                </div>
+                            </div>
+                            
+                            <div class="segment-colors-list" id="segmentColorsList">
+                                <!-- Individual segment colors will be added here -->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Text Color</label>
+                            <div class="color-input-wrapper">
+                                <div class="color-preview" id="textColorPreview" 
+                                     style="background: #ffffff" 
+                                     onclick="document.getElementById('textColor').click()"></div>
+                                <input type="color" class="form-input" id="textColor" 
+                                       value="#ffffff" 
+                                       oninput="updateColorPreview('textColor', 'textColorPreview'); updatePreview()"
+                                       style="opacity: 0; width: 0; height: 0;">
+                                <input type="text" class="form-input" value="#ffffff" 
+                                       oninput="updateColorFromText(this, 'textColor', 'textColorPreview')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Typography</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Font Family</label>
+                            <select class="form-select" id="fontFamily" onchange="updatePreview()">
+                                <option value="system">System Default</option>
+                                <option value="arial">Arial</option>
+                                <option value="georgia">Georgia</option>
+                                <option value="courier">Courier</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3 class="preview-title">Mobile Live Preview</h3>
+            </div>
+           <div class="preview-content">
+  <div class="iphone-frame">
+    <iframe src="/spin-to-sin/index.html" class="preview-iframe" id="previewFrame" scrolling="no"></iframe>
+  </div></div>
+        </div>
+    </div>
+
+    <script>
+        // Prize data with default values
+        let prizes = [
+            { name: "Free Pic Set", chance: 25, cta: "Unlock Now", locked: false },
+            { name: "Custom DM", chance: 20, cta: "Claim DM", locked: false },
+            { name: "VIP Access", chance: 10, cta: "Enter VIP", locked: false },
+            { name: "Bonus Spin", chance: 15, cta: "Spin Again", locked: false },
+            { name: "50% Off Sub", chance: 10, cta: "Get Discount", locked: false },
+            { name: "Try Again", chance: 10, cta: "Better Luck Tomorrow", locked: false },
+            { name: "Video Call", chance: 5, cta: "Schedule Now", locked: false },
+            { name: "Free Gift", chance: 5, cta: "Claim Gift", locked: false }
+        ];
+
+        // Segment colors storage
+        let segmentColors = [];
+
+        // Toast notification system
+        function showToast(message, type = 'error', duration = 3000) {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                error: '❌',
+                warning: '⚠️',
+                success: '✅',
+                info: 'ℹ️'
+            };
+            
+            const titles = {
+                error: 'Error',
+                warning: 'Warning',
+                success: 'Success',
+                info: 'Info'
+            };
+            
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type]}</span>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="removeToast(this.parentElement)">×</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                removeToast(toast);
+            }, duration);
+        }
+
+        function removeToast(toast) {
+            if (!toast || toast.classList.contains('removing')) return;
+            
+            toast.classList.add('removing');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }
+
+        // Custom confirm dialog
+        function showConfirm(title, message, onConfirm, onCancel) {
+            const overlay = document.getElementById('confirmOverlay');
+            const titleEl = document.getElementById('confirmTitle');
+            const messageEl = document.getElementById('confirmMessage');
+            const cancelBtn = document.getElementById('confirmCancel');
+            const okBtn = document.getElementById('confirmOK');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            overlay.classList.add('show');
+            
+            const handleConfirm = () => {
+                overlay.classList.remove('show');
+                cancelBtn.removeEventListener('click', handleCancel);
+                okBtn.removeEventListener('click', handleConfirm);
+                if (onConfirm) onConfirm();
+            };
+            
+            const handleCancel = () => {
+                overlay.classList.remove('show');
+                cancelBtn.removeEventListener('click', handleCancel);
+                okBtn.removeEventListener('click', handleConfirm);
+                if (onCancel) onCancel();
+            };
+            
+            cancelBtn.addEventListener('click', handleCancel);
+            okBtn.addEventListener('click', handleConfirm);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    handleCancel();
+                }
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('Customizer loaded');
+            renderPrizes();
+            updateCharCounts();
+            initializeSegmentColors();
+            updateSegmentColors();
+            
+            // Attach event listener for Add Prize button
+            const addPrizeBtn = document.getElementById('addPrizeBtn');
+            if (addPrizeBtn) {
+                addPrizeBtn.addEventListener('click', addPrize);
+            }
+            
+            const iframe = document.getElementById('previewFrame');
+            iframe.addEventListener('load', function() {
+                console.log('Preview iframe loaded');
+                setTimeout(updatePreview, 500);
+            });
+        });
+
+        // Initialize segment colors based on segment count
+        function initializeSegmentColors() {
+            // Use actual prize count instead of segment dropdown
+            const segmentCount = prizes.length;
+            const baseColor = document.getElementById('primaryColor').value;
+            segmentColors = generateSegmentColors(baseColor, segmentCount);
+        }
+
+        // Generate alternating shades from base color
+        function generateSegmentColors(baseColor, count) {
+            const colors = [];
+            const rgb = hexToRgb(baseColor);
+            
+            for (let i = 0; i < count; i++) {
+                if (i % 2 === 0) {
+                    // Lighter shade
+                    colors.push(rgbToHex(
+                        Math.min(255, rgb.r + 40),
+                        Math.min(255, rgb.g + 40),
+                        Math.min(255, rgb.b + 40)
+                    ));
+                } else {
+                    // Darker shade
+                    colors.push(rgbToHex(
+                        Math.max(0, rgb.r - 30),
+                        Math.max(0, rgb.g - 30),
+                        Math.max(0, rgb.b - 30)
+                    ));
+                }
+            }
+            
+            return colors;
+        }
+
+        // Convert hex to RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        // Convert RGB to hex
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Update add button state
+        function updateAddButtonState() {
+            const addButton = document.querySelector('.add-prize-btn');
+            if (addButton) {
+                if (prizes.length >= 12) {
+                    addButton.disabled = true;
+                    addButton.textContent = '+ Add Prize (Maximum reached)';
+                } else {
+                    addButton.disabled = false;
+                    addButton.textContent = '+ Add Prize';
+                }
+            }
+        }
+
+        // Toggle auto-color segments
+        function toggleAutoColor() {
+            const autoColorEnabled = document.getElementById('autoColorSegments').checked;
+            const segmentColorsList = document.getElementById('segmentColorsList');
+            
+            if (autoColorEnabled) {
+                segmentColorsList.classList.remove('show');
+                // Regenerate colors based on base color
+                const baseColor = document.getElementById('primaryColor').value;
+                const segmentCount = parseInt(document.getElementById('segments').value);
+                segmentColors = generateSegmentColors(baseColor, segmentCount);
+            } else {
+                segmentColorsList.classList.add('show');
+                renderSegmentColors();
+            }
+        }
+
+        // Update segment colors when base color or count changes
+        function updateSegmentColors() {
+            const autoColorEnabled = document.getElementById('autoColorSegments').checked;
+            // Use the actual number of prizes instead of segment dropdown
+            const segmentCount = prizes.length;
+            
+            if (autoColorEnabled) {
+                const baseColor = document.getElementById('primaryColor').value;
+                segmentColors = generateSegmentColors(baseColor, segmentCount);
+            } else {
+                // Ensure we have the right number of colors
+                const baseColor = document.getElementById('primaryColor').value;
+                while (segmentColors.length < segmentCount) {
+                    // Add alternating shades for new segments
+                    if (segmentColors.length % 2 === 0) {
+                        segmentColors.push(baseColor);
+                    } else {
+                        const rgb = hexToRgb(baseColor);
+                        segmentColors.push(rgbToHex(
+                            Math.max(0, rgb.r - 30),
+                            Math.max(0, rgb.g - 30),
+                            Math.max(0, rgb.b - 30)
+                        ));
+                    }
+                }
+                while (segmentColors.length > segmentCount) {
+                    segmentColors.pop();
+                }
+                renderSegmentColors();
+            }
+        }
+
+        // Render individual segment color controls
+        function renderSegmentColors() {
+            const segmentColorsList = document.getElementById('segmentColorsList');
+            // Use actual prize count for segment colors
+            const segmentCount = prizes.length;
+            
+            // Ensure segmentColors array matches current segment count
+            while (segmentColors.length < segmentCount) {
+                const baseColor = document.getElementById('primaryColor').value;
+                segmentColors.push(baseColor);
+            }
+            while (segmentColors.length > segmentCount) {
+                segmentColors.pop();
+            }
+            
+            segmentColorsList.innerHTML = '';
+            
+            for (let i = 0; i < segmentCount; i++) {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'segment-color-item';
+                
+                colorItem.innerHTML = `
+                    <span class="segment-color-label">Segment ${i + 1}</span>
+                    <div class="segment-color-preview" 
+                         id="segmentColorPreview${i}"
+                         style="background: ${segmentColors[i] || '#ff1493'}"
+                         onclick="document.getElementById('segmentColor${i}').click()"></div>
+                    <input type="color" 
+                           id="segmentColor${i}" 
+                           value="${segmentColors[i] || '#ff1493'}"
+                           oninput="updateSegmentColor(${i}, this.value)"
+                           style="opacity: 0; width: 0; height: 0;">
+                `;
+                
+                segmentColorsList.appendChild(colorItem);
+            }
+        }
+
+        // Update individual segment color
+        function updateSegmentColor(index, color) {
+            segmentColors[index] = color;
+            document.getElementById(`segmentColorPreview${index}`).style.background = color;
+            updatePreview();
+        }
+
+        // Character count management
+        function updateCharCount(input, maxLength) {
+            const count = input.value.length;
+            const counter = document.getElementById(input.id + '-counter');
+            if (counter) {
+                counter.textContent = `${count} / ${maxLength}`;
+                
+                // Update counter color based on length
+                counter.classList.remove('warning', 'error');
+                if (count >= maxLength) {
+                    counter.classList.add('error');
+                } else if (count >= maxLength * 0.8) {
+                    counter.classList.add('warning');
+                }
+            }
+        }
+
+        // Initialize all character counters
+        function updateCharCounts() {
+            updateCharCount(document.getElementById('gameTitle'), 50);
+            updateCharCount(document.getElementById('subtitle'), 100);
+            updateCharCount(document.getElementById('ctaText'), 20);
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Find the clicked tab by name and make it active
+            const tabs = ['basic', 'prizes', 'advanced', 'style'];
+            const tabIndex = tabs.indexOf(tabName);
+            if (tabIndex !== -1) {
+                document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            }
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            const activeTab = document.getElementById(`${tabName}-tab`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Update segment colors when switching to Style tab
+            if (tabName === 'style') {
+                updateSegmentColors();
+            }
+        }
+
+        // Device switching - Mobile only
+        function setDevice(device) {
+            const frame = document.getElementById('deviceFrame');
+            
+            // Mobile only configuration
+            frame.style.width = '375px';
+            frame.style.height = '667px';
+            frame.style.borderRadius = '35px';
+            frame.style.border = '8px solid var(--surface-light)';
+        }
+
+        // Prize management
+        function renderPrizes() {
+            const prizeList = document.getElementById('prizeList');
+            prizeList.innerHTML = prizes.map((prize, index) => `
+                <div class="prize-item" data-index="${index}">
+                    <div class="prize-number">${index + 1}</div>
+                    <button class="prize-delete" type="button">×</button>
+                    
+                    <div class="prize-fields">
+                        <div class="prize-field">
+                            <label>Prize Name</label>
+                            <div class="input-wrapper">
+                                <input type="text" 
+                                       class="prize-name-input"
+                                       value="${prize.name}" 
+                                       maxlength="17"
+                                       data-index="${index}">
+                                <span class="char-counter" id="prize-${index}-counter">0 / 17</span>
+                            </div>
+                        </div>
+                        
+                        <div class="prize-field">
+                            <label>Chance %</label>
+                            <div class="chance-input-wrapper">
+                                <input type="number" 
+                                       class="chance-input"
+                                       value="${prize.chance}" 
+                                       min="0" 
+                                       max="100"
+                                       ${prize.locked ? 'disabled' : ''}
+                                       data-index="${index}">
+                                <button class="lock-btn ${prize.locked ? 'locked' : ''}" 
+                                        type="button"
+                                        data-index="${index}"
+                                        title="${prize.locked ? 'Unlock' : 'Lock'} percentage">
+                                    ${prize.locked ? '🔒' : '🔓'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="prize-field" style="margin-top: 1rem;">
+                        <label>CTA Text</label>
+                        <input type="text" 
+                               class="cta-input"
+                               value="${prize.cta}" 
+                               maxlength="30"
+                               data-index="${index}">
+                    </div>
+                </div>
+            `).join('');
+            
+            // Attach event listeners after rendering
+            attachPrizeEventListeners();
+            
+            // Update character counts for all prize names
+            prizes.forEach((prize, index) => {
+                const input = document.querySelector(`#prizeList .prize-item:nth-child(${index + 1}) .prize-name-input`);
+                if (input) {
+                    updatePrizeCharCount(input, index);
+                }
+            });
+            
+            // Update add button state after rendering
+            updateAddButtonState();
+        }
+
+        // Attach all event listeners for prize items
+        function attachPrizeEventListeners() {
+            // Prize item click (select)
+            document.querySelectorAll('.prize-item').forEach((item) => {
+                item.addEventListener('click', function(e) {
+                    // Prevent triggering on child element clicks
+                    if (e.target === this || e.target.classList.contains('prize-number')) {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        selectPrize(index);
+                    }
+                });
+            });
+
+            // Delete buttons
+            document.querySelectorAll('.prize-delete').forEach((btn) => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prizeItem = this.closest('.prize-item');
+                    const index = parseInt(prizeItem.getAttribute('data-index'));
+                    
+                    if (prizes.length <= 8) {
+                        showToast('Minimum 8 prizes required. Cannot delete this prize.', 'error', 4000);
+                        return;
+                    }
+                    
+                    showConfirm(
+                        'Delete this prize?',
+                        'This action cannot be undone.',
+                        () => {
+                            // On confirm
+                            prizes.splice(index, 1);
+                            renderPrizes();
+                            updateSegmentColors();
+                            updatePreview();
+                            showToast('Prize deleted successfully', 'success', 2000);
+                        },
+                        () => {
+                            // On cancel - do nothing
+                        }
+                    );
+                });
+            });
+
+            // Lock/unlock buttons
+            document.querySelectorAll('.lock-btn').forEach((btn) => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    prizes[index].locked = !prizes[index].locked;
+                    renderPrizes();
+                });
+            });
+
+            // Prize name inputs
+            document.querySelectorAll('.prize-name-input').forEach((input) => {
+                input.addEventListener('input', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    updatePrizeCharCount(this, index);
+                });
+                
+                input.addEventListener('change', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    updatePrize(index, 'name', this.value);
+                });
+            });
+
+            // Chance inputs
+            document.querySelectorAll('.chance-input').forEach((input) => {
+                input.addEventListener('change', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    updatePrize(index, 'chance', parseInt(this.value));
+                });
+            });
+
+            // CTA inputs
+            document.querySelectorAll('.cta-input').forEach((input) => {
+                input.addEventListener('change', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    updatePrize(index, 'cta', this.value);
+                });
+            });
+        }
+
+        function updatePrizeCharCount(input, index) {
+            const count = input.value.length;
+            const counter = document.getElementById(`prize-${index}-counter`);
+            if (counter) {
+                counter.textContent = `${count} / 17`;
+                
+                // Update counter color
+                counter.classList.remove('warning', 'error');
+                if (count >= 17) {
+                    counter.classList.add('error');
+                } else if (count >= 14) {
+                    counter.classList.add('warning');
+                }
+            }
+        }
+
+        function selectPrize(index) {
+            document.querySelectorAll('.prize-item').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function updatePrize(index, field, value) {
+            // For prize names, enforce 17 character limit with truncation
+            if (field === 'name' && value.length > 17) {
+                value = value.substring(0, 17);
+            }
+            prizes[index][field] = value;
+            updatePreview();
+        }
+
+        function updateChanceTotal() {
+            // Removed auto-balance functionality
+        }
+
+        function addPrize() {
+            if (prizes.length >= 12) {
+                return; // Button should already be disabled, but double-check
+            }
+            
+            prizes.push({
+                name: `Prize ${prizes.length + 1}`,
+                chance: 10,
+                cta: 'Claim Prize',
+                locked: false
+            });
+            
+            renderPrizes();
+            updateSegmentColors(); // Update colors when prize added
+            updatePreview();
+        }
+
+        // Color management
+        function updateColorPreview(inputId, previewId) {
+            const color = document.getElementById(inputId).value;
+            document.getElementById(previewId).style.background = color;
+            // Update text input
+            const textInput = document.getElementById(previewId).parentElement.querySelector('input[type="text"]');
+            if (textInput) {
+                textInput.value = color;
+            }
+        }
+
+        function updateColorFromText(textInput, colorId, previewId) {
+            const color = textInput.value;
+            if (/^#[0-9A-F]{6}$/i.test(color)) {
+                document.getElementById(colorId).value = color;
+                document.getElementById(previewId).style.background = color;
+                updatePreview();
+            }
+        }
+
+        // Emoji picker placeholder
+        function openEmojiPicker() {
+            // In production, this would open a real emoji picker
+            const emojis = ['🎉', '🎯', '🎰', '🎁', '🌟', '💫', '🔥', '💖', '🎊', '🎈'];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            document.getElementById('buttonEmoji').value = emoji;
+            updatePreview();
+        }
+
+        // Update preview
+        function updatePreview() {
+            console.log('updatePreview called');
+            
+            const iframe = document.getElementById('previewFrame');
+            if (!iframe || !iframe.contentWindow) {
+                console.log('Iframe not ready');
+                return;
+            }
+            
+            // Gather all configuration
+            const config = {
+                heading: document.getElementById('gameTitle').value,
+                subtext: document.getElementById('subtitle').value,
+                spinButton: document.getElementById('ctaText').value,
+                buttonEmoji: document.getElementById('buttonEmoji').value,
+                emailRequired: document.getElementById('emailRequired').checked,
+                wheelSegments: prizes.length, // Use actual prize count
+                language: document.getElementById('language').value,
+                
+                // Colors
+                backgroundColor: document.getElementById('bgColor').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                textColor: document.getElementById('textColor').value,
+                autoColorSegments: document.getElementById('autoColorSegments').checked,
+                segmentColors: segmentColors,
+                
+                // Text constraints (per V4/V5 spec)
+                textLimits: {
+                    maxChars: 17,
+                    truncateWithEllipsis: true,
+                    allowMixedCase: true
+                },
+                autoTruncation: true,
+                
+                // Font scaling based on segment count
+                fontScaling: {
+                    8: "14px", 
+                    10: "12px",
+                    12: "11px"
+                },
+                
+                // Advanced features
+                enableSoundEffects: document.getElementById('soundEffects').checked,
+                enableConfetti: document.getElementById('confettiEnabled').checked,
+                
+                redemptionCountdown: {
+                    enabled: document.getElementById('countdownEnabled').checked,
+                    defaultWindow: parseInt(document.getElementById('timerDuration').value)
+                },
+                
+                security: {
+                    rateLimiting: {
+                        enabled: document.getElementById('rateLimiting').checked,
+                        maxPlaysPerEmail: parseInt(document.getElementById('maxPlays').value)
+                    }
+                },
+                
+                mobileOptimization: {
+                    keyboardHandling: {
+                        autoFocusEmail: document.getElementById('autoFocus').checked
+                    }
+                },
+                
+                // Font
+                fontFamily: document.getElementById('fontFamily').value,
+                
+                // Prizes
+                prizes: prizes
+            };
+            
+            console.log('Sending config:', config);
+            
+            // Send message to iframe
+            iframe.contentWindow.postMessage({
+                type: 'updateConfig',
+                config: config
+            }, '*');
+        }
+
+        // Save configuration
+        function saveConfig() {
+            const config = {
+                // Basic settings
+                heading: document.getElementById('gameTitle').value,
+                subtext: document.getElementById('subtitle').value,
+                spinButton: document.getElementById('ctaText').value,
+                buttonEmoji: document.getElementById('buttonEmoji').value,
+                emailRequired: document.getElementById('emailRequired').checked,
+                wheelSegments: parseInt(document.getElementById('segments').value),
+                
+                // Style
+                backgroundColor: document.getElementById('bgColor').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                textColor: document.getElementById('textColor').value,
+                autoColorSegments: document.getElementById('autoColorSegments').checked,
+                segmentColors: segmentColors,
+                fontFamily: document.getElementById('fontFamily').value,
+                
+                // Advanced
+                language: document.getElementById('language').value,
+                enableSoundEffects: document.getElementById('soundEffects').checked,
+                enableConfetti: document.getElementById('confettiEnabled').checked,
+                
+                // Features
+                redemptionCountdown: {
+                    enabled: document.getElementById('countdownEnabled').checked,
+                    defaultWindow: parseInt(document.getElementById('timerDuration').value)
+                },
+                
+                security: {
+                    rateLimiting: {
+                        enabled: document.getElementById('rateLimiting').checked,
+                        maxPlaysPerEmail: parseInt(document.getElementById('maxPlays').value)
+                    }
+                },
+                
+                mobileOptimization: {
+                    keyboardHandling: {
+                        autoFocusEmail: document.getElementById('autoFocus').checked
+                    }
+                },
+                
+                // Prizes
+                prizes: prizes
+            };
+            
+            // In production, this would save to backend
+            console.log('Saving config:', config);
+            
+            // Download as JSON for now
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "spin-to-sin-config.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            // Show success message
+            showToast('Configuration saved! Check your downloads folder.', 'success', 3000);
+        }
+
+        // Toggle preview mode
+        function togglePreviewMode() {
+            // In production, this would open full-screen preview
+            window.open('index.html', '_blank');
+        }
+    </script>
